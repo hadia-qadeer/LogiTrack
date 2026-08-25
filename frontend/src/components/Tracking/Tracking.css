@@ -1,0 +1,120 @@
+.tracking-page {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.tracking-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.tracking-header h1 {
+  font-size: 1.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.tracking-search-card {
+  background: #ffffff;
+  padding: 1.75rem;
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 2rem;
+}
+
+.tracking-search-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.tracking-search-row input {
+  flex: 1;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.tracking-overview-card {
+  background: #ffffff;
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tracking-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.timeline {
+  position: relative;
+  padding: 1rem 0 1rem 1rem;
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 2.5rem;
+  padding-bottom: 2rem;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 0.25rem;
+  width: 18px;
+  height: 18px;
+  background-color: var(--primary);
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 2px var(--primary);
+  z-index: 2;
+}
+
+.timeline-item:first-child .timeline-dot {
+  background-color: var(--success);
+  box-shadow: 0 0 0 2px var(--success);
+}
+
+.timeline-line {
+  position: absolute;
+  left: 8px;
+  top: 1.25rem;
+  bottom: 0;
+  width: 2px;
+  background-color: #e2e8f0;
+}
+
+.timeline-content {
+  background-color: #f8fafc;
+  border: 1px solid var(--border-color);
+  padding: 1.25rem;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.timeline-content h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
