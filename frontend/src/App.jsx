@@ -15,6 +15,7 @@ import Tracking from './components/Tracking/Tracking';
 // Admin Views
 import AdminDashboard from './components/Admin/AdminDashboard';
 import AdminApprovals from './components/Admin/AdminApprovals';
+import ShipmentDetail from './components/Shipments/ShipmentDetail';
 import ShipmentList from './components/Shipments/ShipmentList';
 
 // Shipper Views
@@ -92,6 +93,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
               <ShipmentList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/shipments/:id"
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <ShipmentDetail />
             </ProtectedRoute>
           }
         />
