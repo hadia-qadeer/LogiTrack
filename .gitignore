@@ -1,35 +1,17 @@
-# Dependencies
-node_modules/
-**/node_modules/
-
-# Environment / secrets
+﻿node_modules/
 .env
-.env.*
-!.env.example
-
-# Build output
+.env.local
+.env.*.local
 dist/
 build/
-**/dist/
-**/build/
-
-# Logs
-*.log
 npm-debug.log*
-yarn-debug.log*
-pnpm-debug.log*
-
-# IDE
-.vscode/
-
-# OS
+*.log
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
 
-# AI coding tools
-.agents/
-.claude/
-.windsurf/
-**/.agents/
-**/.claude/
-**/.windsurf/
+# AI tool folders
+backend/.agents/
+backend/.claude/
+backend/.windsurf/
