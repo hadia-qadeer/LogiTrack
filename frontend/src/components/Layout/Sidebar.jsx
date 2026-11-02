@@ -35,6 +35,13 @@ const Sidebar = () => {
               <span className="nav-icon">🛡️</span>
               <span>User Approvals</span>
             </NavLink>
+            <NavLink
+              to="/admin/shipments"
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              <span className="nav-icon">📦</span>
+              <span>All Shipments</span>
+            </NavLink>
           </>
         )}
 
