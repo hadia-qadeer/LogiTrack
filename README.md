@@ -59,4 +59,5 @@ The app runs on http://localhost:3000
 ## Author
 
 Hadia Qadeer
+
 GitHub: https://github.com/hadia-qadeer
