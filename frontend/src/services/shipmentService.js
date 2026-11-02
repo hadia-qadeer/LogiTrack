@@ -6,6 +6,22 @@ export const shipmentService = {
     return response.data;
   },
 
+  getAllShipments: async (page = 1, limit = 10, filters = {}) => {
+    const params = { page, limit };
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params[key] = value;
+      }
+    });
+    const response = await api.get('/api/shipments', { params });
+    return response.data;
+  },
+
+  getShipmentsByDriver: async (driverId) => {
+    const response = await api.get(`/api/shipments/driver/${driverId}`);
+    return response.data;
+  },
+
   getMyShipments: async (page = 1, limit = 10) => {
     const response = await api.get(`/api/shipments/my-shipments?page=${page}&limit=${limit}`);
     return response.data;

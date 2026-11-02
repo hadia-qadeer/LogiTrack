@@ -7,10 +7,22 @@ import './Shipments.css';
 const ShipmentList = () => {
   const [shipments, setShipments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [filters, setFilters] = useState({
     status: '',
+    fromCity: '',
+    toCity: '',
+    search: '',
+    dateFrom: '',
+    dateTo: '',
     page: 1,
     limit: 10,
+  });
+  // Text inputs are typed here immediately and copied to `filters` after a debounce
+  const [textInputs, setTextInputs] = useState({
+    fromCity: '',
+    toCity: '',
+    search: '',
   });
   const [pagination, setPagination] = useState({
     page: 1,
@@ -22,8 +34,7 @@ const ShipmentList = () => {
   const fetchShipments = useCallback(async () => {
     try {
       setLoading(true);
-      const filterObj = {};
-      if (filters.status) filterObj.status = filters.status;
+      const { page, limit, ...filterObj } = filters;
 
       const response = await shipmentService.getAllShipments(
         filters.page,
@@ -37,6 +48,7 @@ const ShipmentList = () => {
       console.error('Failed to fetch shipments:', err);
     } finally {
       setLoading(false);
+      setInitialLoad(false);
     }
   }, [filters]);
 
@@ -44,14 +56,29 @@ const ShipmentList = () => {
     fetchShipments();
   }, [fetchShipments]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters((prev) => {
+        if (
+          prev.fromCity === textInputs.fromCity &&
+          prev.toCity === textInputs.toCity &&
+          prev.search === textInputs.search
+        ) {
+          return prev;
+        }
+        return { ...prev, ...textInputs, page: 1 };
+      });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [textInputs]);
+
   const handleStatusUpdate = async (shipmentId, newStatus, location) => {
     try {
-      await shipmentService.updateShipmentStatus(
-        shipmentId,
-        newStatus,
+      await shipmentService.updateShipmentStatus(shipmentId, {
+        status: newStatus,
         location,
-        `Updated to ${newStatus}`
-      );
+        notes: `Updated to ${newStatus}`,
+      });
       fetchShipments();
     } catch (err) {
       alert('Failed to update status');
@@ -63,7 +90,35 @@ const ShipmentList = () => {
     setFilters((prev) => ({ ...prev, [name]: value, page: 1 }));
   };
 
-  if (loading && shipments.length === 0) {
+  const handleTextChange = (e) => {
+    const { name, value } = e.target;
+    setTextInputs((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleClearFilters = () => {
+    setTextInputs({ fromCity: '', toCity: '', search: '' });
+    setFilters((prev) => ({
+      ...prev,
+      status: '',
+      fromCity: '',
+      toCity: '',
+      search: '',
+      dateFrom: '',
+      dateTo: '',
+      page: 1,
+    }));
+  };
+
+  const hasActiveFilters = Boolean(
+    filters.status ||
+      filters.fromCity ||
+      filters.toCity ||
+      filters.search ||
+      filters.dateFrom ||
+      filters.dateTo
+  );
+
+  if (initialLoad) {
     return <div className="loading">Loading shipments...</div>;
   }
 
@@ -93,10 +148,57 @@ const ShipmentList = () => {
             </option>
           ))}
         </select>
+        <input
+          type="text"
+          name="fromCity"
+          placeholder="From city"
+          value={textInputs.fromCity}
+          onChange={handleTextChange}
+          className="filter-select"
+        />
+        <input
+          type="text"
+          name="toCity"
+          placeholder="To city"
+          value={textInputs.toCity}
+          onChange={handleTextChange}
+          className="filter-select"
+        />
+        <input
+          type="text"
+          name="search"
+          placeholder="Search cities"
+          value={textInputs.search}
+          onChange={handleTextChange}
+          className="filter-select"
+        />
+        <input
+          type="date"
+          name="dateFrom"
+          aria-label="Date from"
+          value={filters.dateFrom}
+          onChange={handleFilterChange}
+          className="filter-select"
+        />
+        <input
+          type="date"
+          name="dateTo"
+          aria-label="Date to"
+          value={filters.dateTo}
+          onChange={handleFilterChange}
+          className="filter-select"
+        />
+        <button onClick={handleClearFilters} className="btn-small">
+          Clear filters
+        </button>
       </div>
 
       {shipments.length === 0 ? (
-        <div className="empty-state">No shipments found</div>
+        <div className="empty-state">
+          {hasActiveFilters
+            ? 'No shipments match these filters'
+            : 'No shipments found'}
+        </div>
       ) : (
         <>
           <table className="shipment-table">
@@ -136,7 +238,7 @@ const ShipmentList = () => {
                     >
                       Details
                     </button>
-                    {shipment.status === 'PENDING' && (
+                    {shipment.status === 'ASSIGNED' && (
                       <button
                         onClick={() =>
                           handleStatusUpdate(shipment.id, 'IN_TRANSIT', 'Warehouse')

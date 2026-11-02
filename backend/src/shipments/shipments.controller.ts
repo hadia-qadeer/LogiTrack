@@ -9,12 +9,14 @@ import {
   Query,
   UseGuards,
   Request,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ShipmentsService } from './shipments.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RoleGuard, Roles } from '../auth/role.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateShipmentDto, UpdateShipmentStatusDto } from './dto/create-shipment.dto';
+import { ShipmentQueryDto } from './dto/shipment-query.dto';
 
 @ApiTags('Shipments')
 @Controller('api/shipments')
@@ -28,6 +30,13 @@ export class ShipmentsController {
   @Roles(['SHIPPER'])
   async createShipment(@Body() dto: CreateShipmentDto, @Request() req) {
     return this.shipmentsService.createShipment(dto, req.user.id);
+  }
+
+  @Get()
+  async getAllShipments(
+    @Query(new ValidationPipe({ transform: true })) query: ShipmentQueryDto,
+  ) {
+    return this.shipmentsService.getAllShipments(query);
   }
 
   @Get('my-shipments')
@@ -48,6 +57,11 @@ export class ShipmentsController {
   @Roles(['DRIVER'])
   async getMyAssignedShipments(@Request() req) {
     return this.shipmentsService.getDriverShipments(req.user.id);
+  }
+
+  @Get('driver/:driverId')
+  async getShipmentsByDriver(@Param('driverId') driverId: string) {
+    return this.shipmentsService.getDriverShipments(driverId);
   }
 
   @Get(':id')

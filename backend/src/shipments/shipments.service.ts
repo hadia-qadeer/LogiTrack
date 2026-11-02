@@ -1,6 +1,8 @@
 import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateShipmentDto, UpdateShipmentStatusDto } from './dto/create-shipment.dto';
+import { ShipmentQueryDto } from './dto/shipment-query.dto';
 
 @Injectable()
 export class ShipmentsService {
@@ -57,6 +59,60 @@ export class ShipmentsService {
     });
 
     return shipment;
+  }
+
+  async getAllShipments(query: ShipmentQueryDto) {
+    const { page, limit, status, fromCity, toCity, driverId, search, dateFrom, dateTo } = query;
+    const skip = (page - 1) * limit;
+
+    // MySQL string comparison is case-insensitive under the default collation,
+    // and Prisma does not support `mode: 'insensitive'` on MySQL.
+    const where: Prisma.ShipmentWhereInput = {};
+
+    if (status) where.status = status;
+    if (driverId) where.driverId = driverId;
+    if (fromCity) where.fromCity = { contains: fromCity };
+    if (toCity) where.toCity = { contains: toCity };
+    if (search) {
+      where.OR = [{ fromCity: { contains: search } }, { toCity: { contains: search } }];
+    }
+
+    if (dateFrom || dateTo) {
+      const createdAt: Prisma.DateTimeFilter = {};
+      if (dateFrom) createdAt.gte = new Date(dateFrom);
+      if (dateTo) {
+        const end = new Date(dateTo);
+        // A date-only value (YYYY-MM-DD) should include that whole day
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateTo)) end.setUTCHours(23, 59, 59, 999);
+        createdAt.lte = end;
+      }
+      where.createdAt = createdAt;
+    }
+
+    const [total, shipments] = await Promise.all([
+      this.prisma.shipment.count({ where }),
+      this.prisma.shipment.findMany({
+        where,
+        include: {
+          driver: {
+            select: { id: true, name: true, phone: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+    ]);
+
+    return {
+      data: shipments,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async getShipperShipments(shipperId: string, page: number = 1, limit: number = 10) {
